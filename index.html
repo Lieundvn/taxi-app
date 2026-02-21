@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng dụng Tính tiền Taxi</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles can be added here if needed */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .input-group label {
+            text-align: left;
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: #4a5568;
+            box-sizing: border-box;
+        }
+        .button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            width: 100%;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E8B57 100%);
+            color: white;
+        }
+        .stop-button {
+            background: linear-gradient(135deg, #f44336 0%, #CD5C5C 100%);
+            color: white;
+        }
+        .reset-button {
+            background: linear-gradient(135deg, #03A9F4 0%, #1E90FF 100%);
+            color: white;
+        }
+        .info-display {
+            background-color: #e0f2f7; /* Light blue background */
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: left;
+            font-size: 1.1rem;
+            color: #007bb5; /* Darker blue text */
+            line-height: 1.6;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .info-display strong {
+            color: #005f87; /* Even darker blue for strong text */
+        }
+        .status-message {
+            font-size: 1rem;
+            color: #555;
+            margin-top: 10px;
+        }
+        .fare-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .fare-input-label .tooltip-icon {
+            cursor: pointer;
+            color: #666;
+            font-size: 0.9em;
+            margin-left: 5px;
+            position: relative;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+        .tooltip-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Message Box styles */
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .message-box-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .message-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .message-box-overlay.visible .message-box {
+            transform: scale(1);
+        }
+        .message-box h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .message-box p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
+        .message-box button {
+            background-color: #03A9F4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+        .message-box button:hover {
+            background-color: #1E90FF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Ứng dụng Tính tiền Taxi</h1>
+
+        <!-- Fare Input -->
+        <div class="input-group">
+            <div class="fare-input-label">
+                <label for="farePerKm">Giá cước mỗi Km (VND):</label>
+                <span class="tooltip-icon">
+                    &#x1F6C8; <!-- Info icon -->
+                    <span class="tooltip-text">
+                        Nhập giá cước VND cho mỗi kilomet. Ví dụ: 10000 cho 10.000 VND/km.
+                    </span>
+                </span>
+            </div>
+            <input type="number" id="farePerKm" value="10000" placeholder="Nhập giá cước mỗi km" class="focus:ring-2 focus:ring-blue-300 focus:border-blue-300">
+        </div>
+
+        <!-- Additional Expenses Input -->
+        <div class="input-group">
+            <label for="additionalExpenses">Chi phí phát sinh (VND):</label>
+            <input type="number" id="additionalExpenses" value="0" placeholder="Tiền chờ, cầu đường, bến bãi..." class="focus:ring-2 focus:ring-blue-300 focus:border-blue-300">
+        </div>
+
+        <!-- Display Area -->
+        <div class="info-display">
+            <p><strong>Quãng đường:</strong> <span id="distance">0.00</span> km</p>
+            <p><strong>Số tiền (theo Km):</strong> <span id="fare">0</span> VND</p>
+            <p><strong>Tổng cộng:</strong> <span id="totalFare">0</span> VND</p>
+            <p class="status-message" id="statusMessage">Chưa bắt đầu chuyến đi.</p>
+        </div>
+
+        <!-- Control Buttons -->
+        <button id="startButton" class="button start-button">Bắt đầu chuyến đi</button>
+        <button id="stopButton" class="button stop-button" disabled>Kết thúc chuyến đi</button>
+        <button id="resetButton" class="button reset-button" disabled>Đặt lại</button>
+    </div>
+
+    <!-- Message Box HTML -->
+    <div id="messageBoxOverlay" class="message-box-overlay">
+        <div class="message-box">
+            <h3 id="messageBoxTitle"></h3>
+            <p id="messageBoxContent"></p>
+            <button id="messageBoxCloseButton">Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const farePerKmInput = document.getElementById('farePerKm');
+        const additionalExpensesInput = document.getElementById('additionalExpenses'); // New element
+        const distanceDisplay = document.getElementById('distance');
+        const fareDisplay = document.getElementById('fare');
+        const totalFareDisplay = document.getElementById('totalFare'); // New element
+        const statusMessage = document.getElementById('statusMessage');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const resetButton = document.getElementById('resetButton');
+
+        // Message box elements
+        const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+        const messageBoxTitle = document.getElementById('messageBoxTitle');
+        const messageBoxContent = document.getElementById('messageBoxContent');
+        const messageBoxCloseButton = document.getElementById('messageBoxCloseButton');
+
+        // Global variables for tracking trip data
+        let watchId; // Stores the ID returned by navigator.geolocation.watchPosition
+        let totalDistance = 0; // Total distance in kilometers
+        let lastKnownLat = null;
+        let lastKnownLon = null;
+        let isTracking = false; // Flag to indicate if tracking is active
+
+        // Function to show a custom message box instead of alert()
+        function showMessageBox(title, message) {
+            messageBoxTitle.textContent = title;
+            messageBoxContent.textContent = message;
+            messageBoxOverlay.classList.add('visible');
+        }
+
+        // Event listener for closing the message box
+        messageBoxCloseButton.addEventListener('click', () => {
+            messageBoxOverlay.classList.remove('visible');
+        });
+
+        // Haversine formula to calculate distance between two lat/lon points
+        // Returns distance in kilometers
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of Earth in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c;
+            return distance;
+        }
+
+        // Function to update the display
+        function updateDisplay() {
+            const farePerKm = parseFloat(farePerKmInput.value) || 0; // Get fare per km, default to 0 if invalid
+            const additionalExpenses = parseFloat(additionalExpensesInput.value) || 0; // Get additional expenses, default to 0 if invalid
+
+            const currentFareByKm = totalDistance * farePerKm;
+            const grandTotalFare = currentFareByKm + additionalExpenses;
+
+            distanceDisplay.textContent = totalDistance.toFixed(2); // Display distance with 2 decimal places
+            fareDisplay.textContent = Math.round(currentFareByKm).toLocaleString('vi-VN'); // Format fare for Vietnamese locale
+            totalFareDisplay.textContent = Math.round(grandTotalFare).toLocaleString('vi-VN'); // Format total fare
+        }
+
+        // Geolocation success callback
+        function positionSuccess(position) {
+            const currentLat = position.coords.latitude;
+            const currentLon = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+
+            // Only proceed if accuracy is reasonable (e.g., less than 50 meters)
+            // This helps filter out very inaccurate initial readings or jumps
+            if (accuracy > 50) {
+                statusMessage.textContent = `Độ chính xác thấp: ${accuracy.toFixed(0)}m. Đang chờ tín hiệu tốt hơn...`;
+                return;
+            }
+
+            if (lastKnownLat !== null && lastKnownLon !== null) {
+                const distanceDelta = calculateDistance(lastKnownLat, lastKnownLon, currentLat, currentLon);
+                // Add distance only if it's a significant movement to avoid "GPS drift" accumulation
+                if (distanceDelta > 0.005) { // Only add if moved more than 5 meters
+                    totalDistance += distanceDelta;
+                }
+            }
+
+            lastKnownLat = currentLat;
+            lastKnownLon = currentLon;
+            updateDisplay();
+
+            statusMessage.textContent = `Đang theo dõi... Độ chính xác: ${accuracy.toFixed(0)}m`;
+        }
+
+        // Geolocation error callback
+        function positionError(error) {
+            let errorMessage = "Không thể lấy vị trí của bạn.";
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "Bạn đã từ chối quyền truy cập vị trí. Vui lòng cho phép trong cài đặt trình duyệt.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Thông tin vị trí không khả dụng. Vui lòng kiểm tra GPS của bạn.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "Yêu cầu lấy vị trí hết thời gian. Vui lòng thử lại.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    errorMessage = "Đã xảy ra lỗi không xác định khi lấy vị trí.";
+                    break;
+            }
+            statusMessage.textContent = errorMessage;
+            showMessageBox("Lỗi Vị Trí", errorMessage);
+            stopTracking(); // Stop tracking on error
+        }
+
+        // Start tracking function
+        function startTracking() {
+            const fare = parseFloat(farePerKmInput.value);
+            if (isNaN(fare) || fare <= 0) {
+                showMessageBox("Lỗi", "Vui lòng nhập giá cước hợp lệ (số dương) trước khi bắt đầu.");
+                farePerKmInput.focus();
+                return;
+            }
+
+            if (isTracking) {
+                showMessageBox("Thông báo", "Bạn đã bắt đầu chuyến đi rồi.");
+                return;
+            }
+
+            // Reset for a new trip
+            totalDistance = 0;
+            lastKnownLat = null;
+            lastKnownLon = null;
+            updateDisplay();
+
+            // Geolocation options:
+            // enableHighAccuracy: true for better accuracy, uses more battery
+            // timeout: how long to wait for a position
+            // maximumAge: use cached position if it's not older than this (in ms)
+            const geoOptions = {
+                enableHighAccuracy: true,
+                timeout: 10000, // 10 seconds
+                maximumAge: 0 // No cached position
+            };
+
+            watchId = navigator.geolocation.watchPosition(positionSuccess, positionError, geoOptions);
+            isTracking = true;
+            statusMessage.textContent = "Đang theo dõi chuyến đi...";
+            startButton.disabled = true;
+            stopButton.disabled = false;
+            resetButton.disabled = true; // Disable reset while tracking
+            farePerKmInput.disabled = true; // Disable fare input while tracking
+            additionalExpensesInput.disabled = true; // Disable additional expenses input while tracking
+        }
+
+        // Stop tracking function
+        function stopTracking() {
+            if (!isTracking) {
+                showMessageBox("Thông báo", "Chưa có chuyến đi nào đang diễn ra để kết thúc.");
+                return;
+            }
+
+            if (watchId !== undefined) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = undefined; // Clear the watch ID
+            }
+            isTracking = false;
+            statusMessage.textContent = `Chuyến đi đã kết thúc. Tổng quãng đường: ${totalDistance.toFixed(2)} km.`;
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            resetButton.disabled = false; // Enable reset after stopping
+            farePerKmInput.disabled = false; // Enable fare input after stopping
+            additionalExpensesInput.disabled = false; // Enable additional expenses input after stopping
+            showMessageBox("Chuyến đi kết thúc!", `Tổng quãng đường: ${totalDistance.toFixed(2)} km. Tổng số tiền: ${totalFareDisplay.textContent} VND.`);
+        }
+
+        // Reset function
+        function resetTrip() {
+            if (isTracking) {
+                showMessageBox("Thông báo", "Vui lòng kết thúc chuyến đi trước khi đặt lại.");
+                return;
+            }
+            totalDistance = 0;
+            lastKnownLat = null;
+            lastKnownLon = null;
+            farePerKmInput.value = 10000; // Reset fare to default
+            additionalExpensesInput.value = 0; // Reset additional expenses
+            updateDisplay();
+            statusMessage.textContent = "Đã đặt lại. Sẵn sàng cho chuyến đi mới.";
+            startButton.disabled = false;
+            stopButton.disabled = true;
+            resetButton.disabled = true;
+            farePerKmInput.disabled = false;
+            additionalExpensesInput.disabled = false;
+        }
+
+        // Add event listeners to buttons
+        startButton.addEventListener('click', startTracking);
+        stopButton.addEventListener('click', stopTracking);
+        resetButton.addEventListener('click', resetTrip);
+
+        // Listen for changes in additional expenses to update total fare immediately
+        additionalExpensesInput.addEventListener('input', updateDisplay);
+        farePerKmInput.addEventListener('input', updateDisplay);
+
+
+        // Initial display update when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDisplay();
+        });
+
+    </script>
+</body>
+</html>
