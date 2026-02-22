@@ -3,119 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liêu Hải Taxi Service - Lịch Sử</title>
+    <title>Liêu Hải Taxi Service - Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; padding: 15px; }
-        .container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
-        .info-display { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; margin: 15px 0; }
-        .history-card { background: #fff; border-left: 4px solid #2E8B57; padding: 10px; margin-top: 10px; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; margin-bottom: 8px; transition: 0.2s; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; padding: 10px; }
+        .container { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 480px; margin: auto; }
+        .input-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; margin-bottom: 10px; }
+        .label-text { font-size: 0.85rem; font-weight: 600; color: #475569; display: block; margin-bottom: 4px; }
+        .price-input { width: 100%; background: transparent; border: none; font-size: 1.1rem; font-weight: bold; color: #1e293b; outline: none; }
+        .display-area { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 20px; border-radius: 15px; margin: 15px 0; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .history-item { border-left: 4px solid #10b981; padding: 8px 12px; background: #f8fafc; margin-top: 8px; border-radius: 4px; font-size: 0.85rem; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-xl font-bold text-center text-blue-800 mb-4">🚕 LIÊU HẢI TAXI SERVICE</h1>
+        <h1 class="text-xl font-black text-center text-slate-800 mb-4">🚕 LIÊU HẢI LIMO GREEN</h1>
         
-        <div class="mb-4">
-            <label class="block text-sm font-semibold mb-1">Giá cước (VND/Km):</label>
-            <input type="number" id="farePerKm" value="10000" class="w-full p-2 border rounded">
+        <div class="grid grid-cols-2 gap-2">
+            <div class="input-box">
+                <span class="label-text">Phí cầu đường</span>
+                <input type="number" id="tollFee" value="0" class="price-input" placeholder="0">
+            </div>
+            <div class="input-box">
+                <span class="label-text">Tiền gửi xe</span>
+                <input type="number" id="parkingFee" value="0" class="price-input" placeholder="0">
+            </div>
+        </div>
+        <div class="input-box">
+            <span class="label-text">Phí chờ (VND)</span>
+            <input type="number" id="waitingFee" value="0" class="price-input" placeholder="0">
         </div>
 
-        <div class="info-display">
-            <p>🛣️ <b>Quãng đường:</b> <span id="distance">0.00</span> km</p>
-            <p>💰 <b>Số tiền:</b> <span id="totalFare" class="text-green-600 font-bold">0</span> VND</p>
-            <p id="statusMessage" class="text-xs text-orange-500 mt-2 font-medium italic text-center">Đang chờ khởi động...</p>
+        <div class="display-area relative overflow-hidden">
+            <div class="flex justify-between items-end">
+                <div>
+                    <p class="text-xs opacity-70">Quãng đường (KM)</p>
+                    <p class="text-3xl font-black" id="distance">0.00</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs opacity-70">Tổng thanh toán</p>
+                    <p class="text-3xl font-black text-yellow-400" id="totalFare">0</p>
+                </div>
+            </div>
+            <p id="statusMessage" class="text-[10px] mt-3 opacity-60 italic">Đang chờ khởi động...</p>
         </div>
 
-        <button id="stopButton" class="btn bg-red-500 text-white" style="display:none;">KẾT THÚC & LƯU</button>
-        <button id="resetButton" class="btn bg-gray-200 text-gray-700">ĐẶT LẠI MỚI</button>
+        <button id="stopButton" class="btn bg-red-600 text-white shadow-lg shadow-red-200" style="display:none;">KẾT THÚC & LƯU</button>
+        <button id="resetButton" class="btn bg-slate-200 text-slate-700 mt-2">LÀM MỚI CHUYẾN</button>
 
         <div class="mt-6">
-            <h2 class="font-bold text-gray-700 border-b pb-2">📜 Lịch sử hôm nay</h2>
-            <div id="historyList" class="max-h-60 overflow-y-auto mt-2"></div>
-            <button id="clearHistory" class="text-xs text-red-400 mt-4 underline">Xóa lịch sử</button>
+            <h2 class="font-bold text-slate-700 border-b pb-2 flex justify-between">
+                <span>📜 Lịch sử chạy</span>
+                <span id="clearHistory" class="text-red-400 text-xs cursor-pointer">Xóa hết</span>
+            </h2>
+            <div id="historyList" class="max-h-48 overflow-y-auto mt-2"></div>
         </div>
     </div>
 
     <script>
-        const farePerKmInput = document.getElementById('farePerKm');
-        const distanceDisplay = document.getElementById('distance');
-        const totalFareDisplay = document.getElementById('totalFare');
-        const statusMessage = document.getElementById('statusMessage');
-        const stopButton = document.getElementById('stopButton');
-        const historyList = document.getElementById('historyList');
+        const inputs = ['tollFee', 'parkingFee', 'waitingFee'];
+        const elements = {};
+        inputs.concat(['distance', 'totalFare', 'statusMessage', 'stopButton', 'historyList']).forEach(id => {
+            elements[id] = document.getElementById(id);
+        });
 
         let watchId, totalDistance = 0, lastLat = null, lastLon = null, isTracking = false;
 
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        // Hàm tính giá theo bậc thang của anh Hải
+        function calculateTaxiFare(km) {
+            let fare = 0;
+            if (km <= 10) {
+                fare = 200000;
+            } else if (km <= 50) {
+                fare = 200000 + (km - 10) * 12000;
+            } else if (km <= 100) {
+                fare = 200000 + (40 * 12000) + (km - 50) * 10000;
+            } else {
+                fare = 200000 + (40 * 12000) + (50 * 10000) + (km - 100) * 9000;
+            }
+            return Math.round(fare);
+        }
+
+        function updateDisplay() {
+            const extra = (parseFloat(elements.tollFee.value) || 0) + 
+                          (parseFloat(elements.parkingFee.value) || 0) + 
+                          (parseFloat(elements.waitingFee.value) || 0);
+            
+            const fareByKm = calculateTaxiFare(totalDistance);
+            const finalTotal = fareByKm + extra;
+
+            elements.distance.textContent = totalDistance.toFixed(2);
+            elements.totalFare.textContent = finalTotal.toLocaleString('vi-VN');
         }
 
         function startTracking() {
             if (isTracking) return;
             isTracking = true;
-            statusMessage.textContent = "🛰️ Đang kết nối GPS...";
-            stopButton.style.display = 'block';
+            elements.statusMessage.textContent = "🛰️ GPS ĐÃ BẬT - ĐANG TÍNH TIỀN...";
+            elements.stopButton.style.display = 'block';
             
             watchId = navigator.geolocation.watchPosition(
                 (pos) => {
                     const { latitude, longitude, accuracy } = pos.coords;
-                    if (accuracy > 70) {
-                        statusMessage.textContent = `⚠️ Sóng yếu (${Math.round(accuracy)}m)`;
-                        return;
-                    }
+                    if (accuracy > 60) return;
                     if (lastLat !== null) {
-                        const delta = calculateDistance(lastLat, lastLon, latitude, longitude);
-                        if (delta > 0.007) totalDistance += delta;
+                        const R = 6371;
+                        const dLat = (latitude - lastLat) * Math.PI / 180;
+                        const dLon = (longitude - lastLon) * Math.PI / 180;
+                        const a = Math.sin(dLat/2)**2 + Math.cos(lastLat*Math.PI/180)*Math.cos(latitude*Math.PI/180)*Math.sin(dLon/2)**2;
+                        const delta = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                        if (delta > 0.006) totalDistance += delta;
                     }
                     lastLat = latitude; lastLon = longitude;
-                    statusMessage.textContent = "✅ Đang theo dõi hành trình...";
-                    distanceDisplay.textContent = totalDistance.toFixed(2);
-                    totalFareDisplay.textContent = Math.round(totalDistance * farePerKmInput.value).toLocaleString('vi-VN');
+                    updateDisplay();
                 },
-                (err) => { statusMessage.textContent = "❌ Lỗi: " + err.message; },
+                (err) => { elements.statusMessage.textContent = "❌ Lỗi GPS: " + err.message; },
                 { enableHighAccuracy: true }
             );
         }
 
-        function saveToHistory() {
-            if (totalDistance < 0.1) return;
-            const history = JSON.parse(localStorage.getItem('taxiHistory') || '[]');
-            const trip = {
-                time: new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}),
-                km: totalDistance.toFixed(2),
-                money: Math.round(totalDistance * farePerKmInput.value).toLocaleString('vi-VN')
-            };
-            history.unshift(trip);
-            localStorage.setItem('taxiHistory', JSON.stringify(history.slice(0, 20))); // Lưu 20 chuyến gần nhất
-            renderHistory();
-        }
+        elements.stopButton.addEventListener('click', () => {
+            if (totalDistance > 0.1) {
+                const history = JSON.parse(localStorage.getItem('taxiHistoryV2') || '[]');
+                history.unshift({
+                    time: new Date().toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}),
+                    km: totalDistance.toFixed(2),
+                    total: elements.totalFare.textContent
+                });
+                localStorage.setItem('taxiHistoryV2', JSON.stringify(history.slice(0, 20)));
+                renderHistory();
+            }
+            navigator.geolocation.clearWatch(watchId);
+            isTracking = false;
+            elements.stopButton.style.display = 'none';
+            elements.statusMessage.textContent = "🏁 CHUYẾN ĐI ĐÃ KẾT THÚC.";
+        });
 
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('taxiHistory') || '[]');
-            historyList.innerHTML = history.map(t => `
-                <div class="history-card">
-                    <b>${t.time}</b>: ${t.km} km - <span class="text-green-700">${t.money}đ</span>
+            const history = JSON.parse(localStorage.getItem('taxiHistoryV2') || '[]');
+            elements.historyList.innerHTML = history.map(t => `
+                <div class="history-item flex justify-between">
+                    <span><b>${t.time}</b>: ${t.km} km</span>
+                    <span class="text-blue-700 font-bold">${t.total}đ</span>
                 </div>
             `).join('');
         }
 
-        stopButton.addEventListener('click', () => {
-            saveToHistory();
-            navigator.geolocation.clearWatch(watchId);
-            isTracking = false;
-            statusMessage.textContent = "🏁 Đã lưu chuyến đi.";
-            stopButton.style.display = 'none';
-        });
-
+        inputs.forEach(id => elements[id].addEventListener('input', updateDisplay));
         document.getElementById('resetButton').addEventListener('click', () => location.reload());
         document.getElementById('clearHistory').addEventListener('click', () => {
-            if(confirm('Xóa hết lịch sử?')) { localStorage.removeItem('taxiHistory'); renderHistory(); }
+            if(confirm('Xóa hết lịch sử?')) { localStorage.removeItem('taxiHistoryV2'); renderHistory(); }
         });
 
         window.onload = () => {
